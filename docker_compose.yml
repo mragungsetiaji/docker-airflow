@@ -1,0 +1,51 @@
+# Volume variable is used in my mac dont forget to replace!
+
+version: "3.0"
+services:
+  webserver:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    container_name: airflow_webserver_v4
+    env_file: ./env_docker_compose
+    ports:
+      - "8080:8080"
+    volumes:
+      - /Users/mragungsetiaji/Documents/dags:/usr/local/airflow/dags
+    restart: always
+    command: ["webserver", "init"]
+  
+  scheduler:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    container_name: airflow_scheduler_v4
+    env_file: ./env_docker_compose
+    volumes:
+      - /Users/mragungsetiaji/Documents/dags:/usr/local/airflow/dags
+    restart: always
+    depends_on:
+      - webserver
+    command: ["scheduler", ""]
+  
+  worker:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    container_name: airflow_worker_recsys_v4
+    env_file: ./env_docker_compose
+    ports:
+      - "8793:8793"
+    volumes:
+      - /Users/mragungsetiaji/Documents/dags:/usr/local/airflow/dags
+    restart: always
+    depends_on:
+      - webserver
+      - redis
+    command: ["worker", ""]
+  
+  redis:
+    image: redis:3.2.9-alpine
+    container_name: airflow_redis
+    command: ["redis-server", "--appendonly", "yes"]
+  
